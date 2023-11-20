@@ -1,0 +1,60 @@
+---
+resources:
+  buckets:
+    gcs-shr:
+      - release
+      - upload
+      - upload-ts
+  queues: # A "queue" is a PubSub topic/subscription pair, each with the same name, to emulate an SQS queue
+    pubsub-shr:
+      - batch-import.tasks
+      - ts-converter.requests-regular
+      - ts-converter.requests-expedited
+
+permissions:
+  buckets:
+    read:
+      - roles/storage.legacyBucketReader
+      - roles/storage.legacyObjectReader
+      - roles/storage.objectViewer
+    write:
+      - roles/storage.admin
+  queues.topics:
+    publish:
+      - roles/pubsub.publisher
+      - roles/pubsub.viewer
+    subscribe:
+      - roles/pubsub.viewer  # Because subscriber calls Exists() on the topic when using SQS wrapper
+  queues.subscriptions:
+    subscribe:
+      - roles/pubsub.subscriber
+      - roles/pubsub.viewer
+
+usage:
+  candy:
+    buckets:
+      write:
+        - upload      
+  provisioning:
+    buckets:
+      read:
+        - release 
+  scheduled-batch-gmail-import:
+    queues:
+      publish:
+        - batch-import.tasks
+  ts-converter-dispatcher:
+    queues:
+      publish:
+        - ts-converter.requests-regular
+        - ts-converter.requests-expedited
+  ts-converter-worker:
+    buckets:
+      read:
+        - upload
+      write:
+        - upload-ts
+    queues:
+      subscribe:
+        - ts-converter.requests-regular
+        - ts-converter.requests-expedited

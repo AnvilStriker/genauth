@@ -1,0 +1,10 @@
+---
+batch-import:
+  - scheduled-batch-gmail-import
+candy:
+  - candy
+provisioning:
+  - provisioning
+ts-converter:
+  - ts-converter-dispatcher
+  - ts-converter-worker
